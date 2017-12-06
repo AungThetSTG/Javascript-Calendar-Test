@@ -6,9 +6,16 @@
 	"August", "September", "October", "November", "December"];
 	var container = create_element("div", {id: "calendar"});
 
-	function calendar(){
-		create_calendar();
-		return container;
+	function calendar(date = new Date()){
+		if(date == 'Invalid Date'){
+			console.err(date);
+		}
+		else{
+			operateDate = date;
+			create_calendar();
+			return container;
+		}
+		return false;
 	}
 		/**********************
 			Create Function
@@ -51,16 +58,16 @@
 		function create_body(){
 			var cal_date = create_element("div", {class: 'cal_date'});
 			for(var i=0;i<7;i++){
-				appendElement(cal_date, create_row());
+				appendElement(cal_date, create_date_cell());
 			}
 			return cal_date;
 		}
-		function create_row(){
-			var cal_dates_row = create_element("div", {class:'cal_dates_row'});
+		function create_date_cell(){
+			var cal_dates_date_cell = create_element("div", {class:'cal_dates_date_cell'});
 			for(var i=0;i<7;i++){
-				appendElement(cal_dates_row, create_cal_date());
+				appendElement(cal_dates_date_cell, create_cal_date());
 			}
-			return cal_dates_row;
+			return cal_dates_date_cell;
 		}
 		function create_cal_date(){
 			var cal_date = create_element("div", {class: 'cal_dates'});
@@ -72,36 +79,34 @@
 		function create_title(){
 			var cal_day = create_element("div", {class:"cal_day"});
 			var cal_days = create_element("div", {class:"cal_days cal_days_position"});
-			var arr = new Array(7);
-			arr.fill(1);
-			arr.forEach(function(){
+			for(var i=0;i<7;i++){
 				appendElement(cal_day, cal_days.cloneNode(true));
-			});
+			}
 			return cal_day;
 		}
 		function create_month_view(){
 			var month_container = create_element("div", {class: "month_container"});
 			for(var i=0;i<3;i++){
-				var month_row = create_element("div", {class: "month_row"});
+				var month_date_cell = create_element("div", {class: "month_date_cell"});
 				for(var j=0;j<4;j++){
 					var months = create_element("div", {class: "months", month_index: i*4+j});
 					months.addEventListener('click',chosen_month);
-					month_row.appendChild(months);
+					month_date_cell.appendChild(months);
 				}
-				month_container.appendChild(month_row);
+				month_container.appendChild(month_date_cell);
 			}
 			return month_container;
 		}
 		function create_year_view(){
 			var year_container = create_element("div", {class: 'year_container'});
 			for(var i=0;i<3;i++){
-				var year_row = create_element("div", {class: "year_row"});
+				var year_date_cell = create_element("div", {class: "year_date_cell"});
 				for(var j=0;j<4;j++){
 					var years = create_element("div", {class: 'years'});
 					years.addEventListener('click', chosen_year);
-					year_row.appendChild(years);
+					year_date_cell.appendChild(years);
 				}
-				year_container.appendChild(year_row);
+				year_container.appendChild(year_date_cell);
 			}
 			return year_container;
 		}
@@ -130,27 +135,22 @@
 		}
 		function fill_cal_content(calendar_body){
 			var date = new Date(operateDate);
-			var month = date.getMonth();
+			var month = date.getMonth();		//current month
 			date.setDate(1);
 			var previousMonthDays = date.getDay();
 			date.setDate(date.getDate()-previousMonthDays);
-			calendar_body.childNodes[0]
-			.childNodes[0]
-			.childNodes[1]
-			.childNodes.forEach(function(row, rowIndex){
-				row.childNodes.forEach(function(column, ColumnIndex){
-					column.classList.remove("prev_month_container");
-					column.classList.remove("next_month_container");
-					if(date.getMonth() < month){
-						column.classList.add("prev_month_container");
+			Object.values(calendar_body.querySelectorAll('.cal_dates')).forEach(function(date_cell){
+				date_cell.classList.remove("prev_month_container");
+				date_cell.classList.remove("next_month_container");
+					if(date.getMonth() < month){	//operate month reach before current month
+						date_cell.classList.add("prev_month_container");
 					}
-					else if(date.getMonth() > month){
-						column.classList.add("next_month_container");
+					else if(date.getMonth() > month){ //operate month reach after current month
+						date_cell.classList.add("next_month_container");
 					}
-					column.childNodes[0].innerHTML = date.getDate();
-					date.setDate(date.getDate()+1); 
+					date_cell.childNodes[0].innerHTML = date.getDate();
+					date.setDate(date.getDate()+1);
 				});
-			});
 		}
 		function fill_cal_title_month(){
 			var cal_header = container.childNodes[0];
@@ -171,9 +171,9 @@
 		}
 		function fill_cal_content_month(){
 			var month_container = container.childNodes[1];
-			month_container.childNodes.forEach(function(row, rowIndex){
-				row.childNodes.forEach(function(element, columnIndex){
-					var index = rowIndex * 4 + columnIndex;
+			month_container.childNodes.forEach(function(date_cell, date_cellIndex){
+				date_cell.childNodes.forEach(function(element, columnIndex){
+					var index = date_cellIndex * 4 + columnIndex;
 					element.innerHTML = months[index];
 				});
 			});
@@ -191,8 +191,8 @@
 			else{
 				titleText = current +"-"+(current+11);
 			}
-			year_container.childNodes.forEach(function(row, rowIndex){
-				row.childNodes.forEach(function(column, columnIndex){
+			year_container.childNodes.forEach(function(date_cell, date_cellIndex){
+				date_cell.childNodes.forEach(function(column, columnIndex){
 					column.innerHTML = yearText;
 					column.setAttribute("year", yearText);
 					yearText++;
@@ -287,10 +287,7 @@
 			return element;
 		}
 		function bindAttribute(element, attributes){
-			var keys = Object.keys(attributes).map(function(key) {
-				return key;
-			});
-			keys.forEach(function(key){
+			var keys = Object.keys(attributes).map(function(key){
 				element.setAttribute(key, attributes[key]);
 			});
 		}
@@ -304,20 +301,13 @@
 		window.calendar = calendar;
 		window.addEventListener('resize', function(){
 			var date_cell = container.querySelectorAll('.cal_dates');
-			var date_row = container.querySelectorAll('.cal_dates_row');
+			var date_date_cell = container.querySelectorAll('.cal_dates_date_cell');
 			var cell_width = getComputedStyle(container.querySelector('.cal_dates')).width;
 			date_cell.forEach(function(ele){
 				ele.style.height = cell_width;
 			});
-			date_row.forEach(function(ele){
+			date_date_cell.forEach(function(ele){
 				ele.style.height = cell_width;
 			})
 		});
-		// function ready(fn) {
-		// 	if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading"){
-		// 		fn();
-		// 	} else {
-		// 		document.addEventListener('DOMContentLoaded', fn);
-		// 	}
-		// }
 	})(document);
