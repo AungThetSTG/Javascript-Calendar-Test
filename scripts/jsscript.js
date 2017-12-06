@@ -58,16 +58,16 @@
 		function create_body(){
 			var cal_date = create_element("div", {class: 'cal_date'});
 			for(var i=0;i<7;i++){
-				appendElement(cal_date, create_date_cell());
+				appendElement(cal_date, create_row());
 			}
 			return cal_date;
 		}
-		function create_date_cell(){
-			var cal_dates_date_cell = create_element("div", {class:'cal_dates_date_cell'});
+		function create_row(){
+			var cal_dates_row = create_element("div", {class:'cal_dates_row'});
 			for(var i=0;i<7;i++){
-				appendElement(cal_dates_date_cell, create_cal_date());
+				appendElement(cal_dates_row, create_cal_date());
 			}
-			return cal_dates_date_cell;
+			return cal_dates_row;
 		}
 		function create_cal_date(){
 			var cal_date = create_element("div", {class: 'cal_dates'});
@@ -87,26 +87,26 @@
 		function create_month_view(){
 			var month_container = create_element("div", {class: "month_container"});
 			for(var i=0;i<3;i++){
-				var month_date_cell = create_element("div", {class: "month_date_cell"});
+				var month_row = create_element("div", {class: "month_row"});
 				for(var j=0;j<4;j++){
 					var months = create_element("div", {class: "months", month_index: i*4+j});
 					months.addEventListener('click',chosen_month);
-					month_date_cell.appendChild(months);
+					month_row.appendChild(months);
 				}
-				month_container.appendChild(month_date_cell);
+				month_container.appendChild(month_row);
 			}
 			return month_container;
 		}
 		function create_year_view(){
 			var year_container = create_element("div", {class: 'year_container'});
 			for(var i=0;i<3;i++){
-				var year_date_cell = create_element("div", {class: "year_date_cell"});
+				var year_row = create_element("div", {class: "year_row"});
 				for(var j=0;j<4;j++){
 					var years = create_element("div", {class: 'years'});
 					years.addEventListener('click', chosen_year);
-					year_date_cell.appendChild(years);
+					year_row.appendChild(years);
 				}
-				year_container.appendChild(year_date_cell);
+				year_container.appendChild(year_row);
 			}
 			return year_container;
 		}
@@ -135,17 +135,21 @@
 		}
 		function fill_cal_content(calendar_body){
 			var date = new Date(operateDate);
-			var month = date.getMonth();		//current month
+			var currentMonth = date.getMonth();		//current month
 			date.setDate(1);
 			var previousMonthDays = date.getDay();
 			date.setDate(date.getDate()-previousMonthDays);
 			Object.values(calendar_body.querySelectorAll('.cal_dates')).forEach(function(date_cell){
 				date_cell.classList.remove("prev_month_container");
 				date_cell.classList.remove("next_month_container");
-					if(date.getMonth() < month){	//operate month reach before current month
+					if(date.getMonth() < currentMonth ? 
+						date.getFullYear() == operateDate.getFullYear() :
+						date.getFullYear() < operateDate.getFullYear() ){	//operate month reach before current month
 						date_cell.classList.add("prev_month_container");
 					}
-					else if(date.getMonth() > month){ //operate month reach after current month
+					else if(date.getMonth() > currentMonth ? 
+							date.getFullYear() == operateDate.getFullYear() :
+							date.getFullYear() > operateDate.getFullYear() ){ //operate month reach after current month
 						date_cell.classList.add("next_month_container");
 					}
 					date_cell.childNodes[0].innerHTML = date.getDate();
@@ -171,9 +175,9 @@
 		}
 		function fill_cal_content_month(){
 			var month_container = container.childNodes[1];
-			month_container.childNodes.forEach(function(date_cell, date_cellIndex){
-				date_cell.childNodes.forEach(function(element, columnIndex){
-					var index = date_cellIndex * 4 + columnIndex;
+			month_container.childNodes.forEach(function(row, rowIndex){
+				row.childNodes.forEach(function(element, columnIndex){
+					var index = rowIndex * 4 + columnIndex;
 					element.innerHTML = months[index];
 				});
 			});
@@ -191,8 +195,8 @@
 			else{
 				titleText = current +"-"+(current+11);
 			}
-			year_container.childNodes.forEach(function(date_cell, date_cellIndex){
-				date_cell.childNodes.forEach(function(column, columnIndex){
+			year_container.childNodes.forEach(function(row, rowIndex){
+				row.childNodes.forEach(function(column, columnIndex){
 					column.innerHTML = yearText;
 					column.setAttribute("year", yearText);
 					yearText++;
@@ -253,7 +257,16 @@
 			create_calendar();
 		}
 		function date_alert(e){
-			alert("alert");
+			var ele = e.target;
+			var date = new Date(operateDate);
+			if(ele.classList.contains('prev_month_container')){
+				date.setMonth(operateDate.getMonth()-1);
+			}
+			else if(ele.classList.contains('next_month_container')){
+				date.setMonth(operateDate.getMonth()+1);
+			}
+			date.setDate(ele.childNodes[0].innerText);
+			alert(date);
 		}
 		function nextMonth(){
 			operateDate.setMonth(operateDate.getMonth()+1);
@@ -301,12 +314,12 @@
 		window.calendar = calendar;
 		window.addEventListener('resize', function(){
 			var date_cell = container.querySelectorAll('.cal_dates');
-			var date_date_cell = container.querySelectorAll('.cal_dates_date_cell');
+			var date_row = container.querySelectorAll('.cal_dates_row');
 			var cell_width = getComputedStyle(container.querySelector('.cal_dates')).width;
 			date_cell.forEach(function(ele){
 				ele.style.height = cell_width;
 			});
-			date_date_cell.forEach(function(ele){
+			date_row.forEach(function(ele){
 				ele.style.height = cell_width;
 			})
 		});
