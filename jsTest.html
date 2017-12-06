@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="container"></div>
+</body>
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/font-awesome.css">
+<link rel="stylesheet" href="css/font-awesome.min.css">
+<link rel="stylesheet" href="css/calendar_style.css">
+<script src="scripts/docready.js"></script>
+<script src="scripts/jsscript.js"></script>
+<script>
+	(function(){
+		var container = document.querySelector("#container");
+		container.appendChild(calendar());
+	})();
+</script>	
+</html>
