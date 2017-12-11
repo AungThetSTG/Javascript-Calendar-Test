@@ -1,4 +1,3 @@
-
 (function(){
 	var operateDate = new Date();
 	var week_days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -266,7 +265,7 @@
 				date.setMonth(operateDate.getMonth()+1);
 			}
 			date.setDate(ele.childNodes[0].innerText);
-			alert(date);
+			alert(date.toDateString());
 		}
 		function nextMonth(){
 			operateDate.setMonth(operateDate.getMonth()+1);
